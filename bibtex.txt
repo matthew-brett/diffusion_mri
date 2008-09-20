@@ -1,0 +1,21 @@
+@ARTICLE{Jian&Vemuri_tmi07,
+author = {Bing Jian and Baba C. Vemuri},
+title = {A unified computational framework for deconvolution to reconstruct multiple fibers from diffusion weighted {MRI}},
+journal = {IEEE Trans. Med. Imaging},
+year = {2007},
+volume = {26},
+pages = {1464-1471},
+number = {11} 
+}
+
+
+@ARTICLE{Jian-etal_ni07,
+author = {Bing Jian and Baba C. Vemuri and Evren \"{O}zarslan and Paul R. Carney and Thomas H. Mareci},
+title = {A novel tensor distribution model for the diffusion weighted {MR} signal},
+journal = {NeuroImage},
+year = {2007},
+volume = {37},
+pages = {164-176},
+number = {1},
+}
+
