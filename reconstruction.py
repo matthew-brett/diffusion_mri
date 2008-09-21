@@ -11,22 +11,11 @@
 #======================================================================
 
 """
-ABOUT:
-    This program is a Python implementation of the diffusion MRI reconstruction
-    algorithm presented in the following NeuroImage paper,
-
-     Bing Jian, Baba C. Vemuri, Evren Ozarslan, Paul R. Carney, and Thomas H. Mareci
-     A novel tensor distribution model for the diffusion-weighted MR signals,
-     NeuroImage 37(1), 2007, pp. 164-176
-
 Usage:
     In ipython, run the following:
      run reconstruction.py example.ini mow (or dot or qbi)
      [dsize, data] = read_flt_file('output.flt')
-     x = fmin_l_bfgs_b(real_spherical_harmonics, [1,1], None, args=(data[:,0],8,2))
-
-TODO:
-    (1) implement NNLS/FCNNLS in Python
+     x = scipy.optimize.fmin_l_bfgs_b(real_spherical_harmonics, [1,1], None, args=(data[:,0],8,2))
 """
 
 import sys
@@ -96,7 +85,18 @@ class Reconstructor:
 
 
 class MOWReconstructor(Reconstructor):
-    """ The class for reconstruction using MOW method."""
+    """ The class for reconstruction using MOW method.
+
+    Reference:
+         Bing Jian, Baba C. Vemuri, Evren Ozarslan, Paul R. Carney, and Thomas H. Mareci
+         A novel tensor distribution model for the diffusion-weighted MR signals,
+         NeuroImage 37(1), 2007, pp. 164-176.
+
+    TODO:
+        (1) implement NNLS/FCNNLS in Python
+
+    """
+
     def __init__(self,config):
         Reconstructor.__init__(self,config)
         print " ***** Initializing the MOW reconstructor ... ***** "
@@ -160,7 +160,18 @@ class MOWReconstructor(Reconstructor):
 
 
 class QBIReconstructor(Reconstructor):
-    """ The class for reconstruction using QBI method."""
+    """ The class for reconstruction using QBI method.
+
+    References:
+    [1] David S. Tuch. Q-ball imaging. Magn. Reson. Med., 52(6):1358-1372, 2004.
+    [2] Adam W. Anderson.
+        Measurement of Fiber Orientation Distributions Using High Angular Resolution Diffusion Imaging.
+        Magn. Reson. Med., 54(5):1194-1206, 2005
+    [3] Maxime Descoteaux, Elaine Angelino, Shaun Fitzgibbons, and Rachid Deriche.
+        Regularized, Fast and Robust Analytical Q-Ball Imaging.
+        Magn. Reson. Med., 58:497-510, 2007.
+
+    """
     def __init__(self,config):
         Reconstructor.__init__(self,config)
         print " ***** Initializing the QBI reconstructor ... ***** "
@@ -181,7 +192,13 @@ class QBIReconstructor(Reconstructor):
 
 
 class DOTReconstructor(Reconstructor):
-    """ The class for reconstruction using QBI method."""
+    """ The class for reconstruction using QBI method.
+
+    Reference:
+    Evren Özarslan, Timothy M. Shepherd, Baba C. Vemuri, Stephen J. Blackband, and Thomas H. Mareci.
+    Resolution of complex tissue microarchitecture using the diffusion orientation transform (DOT).
+    NeuroImage, 36(3):1086-1103, 2006.
+    """
     def __init__(self,config):
         Reconstructor.__init__(self,config)
         print " ***** Initializing the DOT reconstructor ... *****"
