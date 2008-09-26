@@ -351,6 +351,7 @@ def comp_Il(l,S,b,R0,t):
     #D(D<0) = eps;  %% in case S>1
     beta = R0 / math.sqrt(D*t)
 
+
     expB = math.exp(-0.25*(beta**2))
     erfB = scipy.special.erf(0.5*beta)
     f2 = erfB/(4.0*math.pi*R0**3)
@@ -380,7 +381,6 @@ def comp_Il(l,S,b,R0,t):
 
     g = [g0,g2,g4,g6,g8]
     Al,Bl = g[l/2](beta)
-
     Il = Al*f1 + Bl*f2
     return Il
 
@@ -389,7 +389,6 @@ def computeM(l, gradients, tessellation):
     # assert(gradients.shape[1]==3)
     # assert(tessellation.shape[1]==3)
     r_dot_u = numpy.array([numpy.dot(r,u) for r in tessellation for u in gradients])
-    #    print r_dot_u
     r_dot_u[numpy.where(r_dot_u < -1)[0]] = -1.0
     r_dot_u[numpy.where(r_dot_u >  1)[0]] =  1.0
     Pl = [spherical_harmonics.P(l,0,math.acos(cos_theta))[0] for cos_theta in r_dot_u]

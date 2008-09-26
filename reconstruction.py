@@ -33,37 +33,37 @@ class Reconstructor:
         self.config = config
         parser = ConfigParser.ConfigParser()
         if parser.read(config):
-            self.InputFile = parser.get('Files','InputFile')
+            self.InputFile = parser.get('Input','diffusion_image')
             print "Reading signals from file", self.InputFile, "..."
             self.dsize, self.Signal = read_flt_file(self.InputFile)
             print "Obtained signals of size", list(self.dsize)
 
-            if int(parser.get('Options','UseBMatrix')) == 1:
-                self.BMatrixFile = parser.get('Files','BMatrixFile')
-                print "Reading B-matrix from file", self.BMatrixFile, "..."
+            try:
+                self.BMatrixFile = parser.get('Input','b_matrices')
+                print "Reading B-matrices from file", self.BMatrixFile, "..."
                 self.B = numpy.array(numpy.loadtxt(self.BMatrixFile))
-            else:
-                self.b = float(parser.get('Constants','bValue'))
-                self.DiffusionGradientFile = parser.get('Files','DiffusionGradientFile')
+            except:
+                self.b = float(parser.get('Input','b_value_fixed'))
+                self.DiffusionGradientFile = parser.get('Input','diffusion_gradients')
                 print "Reading b-value (%f) and gradients from file %s ..."%(self.b, self.DiffusionGradientFile)
                 self.g = numpy.array(numpy.loadtxt(self.DiffusionGradientFile))
                 self.B = math.sqrt(self.b)*self.g
             print "Obtained B-matrix of size", self.B.shape
 
-            if int(parser.get('Options','UseS0Image')) == 1:
-                self.S0ImageFile = parser.get('Files','S0Image')
+            try:
+                self.S0ImageFile = parser.get('Input','baseline_image')
                 print "Reading S0 image from", self.S0ImageFile
                 self.S0 = read_flt_file(self.S0ImageFile)[1]
-            else:
-                self.S0 = float(parser.get('Constants','S0default'))
+            except:
+                self.S0 = float(parser.get('Input','baseline_value'))
                 print "Use constant S0 value:", self.S0
-            self.S0scale = float(parser.get('Constants','S0scale'))
+            self.S0scale = float(parser.get('Input','baseline_scale'))
             self.s = self.S0scale*self.Signal/self.S0  # KxM
 
             self.r = float(parser.get('Constants','r'))
             self.t = float(parser.get('Constants','t'))
 
-            self.OutputPath = parser.get('Files','OutputFile')
+            self.OutputPath = parser.get('Output','output_basename')
         else:
             raise InputError('init','No configuration file')
 
@@ -102,21 +102,21 @@ class MOWReconstructor(Reconstructor):
         print " ***** Initializing the MOW reconstructor ... ***** "
         parser = ConfigParser.ConfigParser()
         if parser.read(config):
-            self.EigenVectorsFile = parser.get('Files','EigenVectorsFile')
+            self.EigenVectorsFile = parser.get('MOW','eigenvectors')
             print "Reading eigenvectors for mixture components from", self.EigenVectorsFile
             self.ev = numpy.array(numpy.loadtxt(self.EigenVectorsFile))
-            lambda1 = float(parser.get('Constants','Lambda1'))
-            lambda2 = float(parser.get('Constants','Lambda2'))
+            lambda1 = float(parser.get('MOW','eigenvalue1'))
+            lambda2 = float(parser.get('MOW','eigenvalue2'))
             self.ew = [lambda1,lambda2,lambda2]
             print "Eigenvalues:", self.ew
-            self.p = float(parser.get('Constants','p'))
-            self.damping_factor = float(parser.get('Constants','lambda'))
+            self.p = float(parser.get('MOW','p'))
+            self.damping_factor = float(parser.get('MOW','lambda'))
 
-            self.TessellationFile = parser.get('Files','TessellationFile')
+            self.TessellationFile = parser.get('Input','tessellation')
             print "Reading tessellation vectors from", self.TessellationFile
             self.tessellation = numpy.array(numpy.loadtxt(self.TessellationFile))
 
-            self.SHBasisFile = parser.get('Files','SHBasisFile')
+            self.SHBasisFile = parser.get('Input','sh_basis_matrix')
             print "Reading the spherical harmonics basis matrix from", self.SHBasisFile
             self.spharm_basis = numpy.array(numpy.loadtxt(self.SHBasisFile))
 
@@ -177,7 +177,7 @@ class QBIReconstructor(Reconstructor):
         print " ***** Initializing the QBI reconstructor ... ***** "
         parser = ConfigParser.ConfigParser()
         if parser.read(config):
-            self.degree = int(parser.get('Constants','degree'))
+            self.degree = int(parser.get('QBI','degree'))
         else:
             raise InputError('init','No configuration file')
 
@@ -204,12 +204,12 @@ class DOTReconstructor(Reconstructor):
         print " ***** Initializing the DOT reconstructor ... *****"
         parser = ConfigParser.ConfigParser()
         if parser.read(config):
-            self.degree = int(parser.get('Constants','degree'))
-            self.TessellationFile = parser.get('Files','TessellationFile')
+            self.degree = int(parser.get('DOT','degree'))
+            self.TessellationFile = parser.get('Input','tessellation')
             print "Reading tessellation vectors from", self.TessellationFile
             self.tessellation = numpy.array(numpy.loadtxt(self.TessellationFile))
 
-            self.SHBasisFile = parser.get('Files','SHBasisFile')
+            self.SHBasisFile = parser.get('Input','sh_basis_matrix')
             print "Reading the spherical harmonics basis matrix from", self.SHBasisFile
             self.spharm_basis = numpy.array(numpy.loadtxt(self.SHBasisFile))
 
@@ -224,7 +224,9 @@ class DOTReconstructor(Reconstructor):
         for l in range(0, self.degree+1,2):
             Il = [[comp_Il(l,S,self.b,self.r,self.t) for S in image] for image in self.s]
             Il = numpy.array(Il).reshape(self.s.shape) #KxM
+            #print Il
             P += numpy.dot(M[l/2],Il) #TxM
+        #print P
         self.prob = P
         print "The probability profiles computed, size: ", self.prob.shape
         inv_basis = damped_inverse(self.spharm_basis, 0)
