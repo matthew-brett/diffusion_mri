@@ -25,7 +25,7 @@ http://code.google.com/p/diffusion-mri
 ---------------------------------------
 
     Platforms:
-        This C++ program has been tested on Windows XP, SUSE Linux 10.0 and FreeBSD 7.0.
+        This C++ program has been tested on Windows XP, SUSE Linux 10.0.
 
     Build from the C++ source code:
       (1) CMake is used in the building process from the C++ source code. If CMake is not installed on 
