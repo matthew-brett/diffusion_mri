@@ -44,7 +44,6 @@ void MoWReconstructor::DoReconstruction()
     catch(char *str){
         std::cout << "Exception raised: " << str << std::endl;
     }
-    system("pause");
 }
 
 
@@ -86,37 +85,47 @@ void MoWReconstructor::LoadWishartParameters()
 void MoWReconstructor::ComputeP(vnl_vector <float> &S, vnl_vector <float> &P)
 {
     vnl_vector <float> weights;
-    weights.set_size(ev.rows());
+    weights.set_size(ev.rows()); // the # of weights is the # of components in MOW
+
     char s_method[BUFF_MAX] = "dls";
-    GetPrivateProfileString("MOW", "solver", NULL, s_method, 10, f_config);
+    GetPrivateProfileString("MOW", "solver", NULL, s_method, 20, f_config);
     if (!strcmp(s_method, "dls"))
     {
         weights = Ainv*S;
     }
-    else if (!strcmp(s_method, "dls"))
+    else if (!strcmp(s_method, "nnls"))
     {
         vnl_NNLS(A,  S, weights);
     }
     else
     {
-        throw "The MOW solver has to be either 'dls' (damped least squares) or 'nnls' (non-negative least squares)."
+        throw "The MOW solver has to be either 'dls' (damped least squares) or 'nnls' (non-negative least squares).";
         return;
     }
-    int option =  GetPrivateProfileInt("MOW", "PorQBIorDSI", 0, f_config);
-    //std::cout << "option: " << option << std::endl;
-
-    // "0", P, "1", QBI, "2", DSI, "3" weights
-    if (option==1)
-    {P = R_QBI*weights;}
-    else if (option==2)
-    {P = R_DSI*weights;}
-    else if (option == 3)
-    {P = weights;  //!!! only when T==N
+    char s_output[BUFF_MAX] = "probability";
+    GetPrivateProfileString("MOW", "output", NULL, s_output, 20, f_config);
+    if (!strcmp(s_output, "probability"))
+    {
+        P = R*weights;
+    }
+    else if (!strcmp(s_output, "odf"))
+    {
+        P = R_QBI*weights;
+    }
+    else if (!strcmp(s_output, "dsi"))
+    {
+        P = R_DSI*weights;
+    }
+    else if (!strcmp(s_output, "weights"))
+    {
+        P = weights;  //!!! only when T==N
     }
     else
-    { P = R*weights; }
-
-#if 1
+    {
+        throw "The available output types: probability, odf, dsi, weights";
+        return;
+    }
+#if 0
             for (unsigned int k = 0; k<R.rows(); ++k)
             {
                 if (P[k] < 0)
@@ -124,8 +133,6 @@ void MoWReconstructor::ComputeP(vnl_vector <float> &S, vnl_vector <float> &P)
             }
             P = P/P.sum();
 #endif
-
-    // save weights
 }
 
 

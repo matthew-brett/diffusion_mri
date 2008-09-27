@@ -34,34 +34,13 @@ ENDIF(VXL_FOUND)
 
 INCLUDE_DIRECTORIES( ${VXL_VNL_INCLUDE_DIR} )
 
-IF(WIN32)
-  ADD_DEFINITIONS(-DWIN32)
-ENDIF(WIN32)
 
-ADD_LIBRARY(port_ini STATIC port_ini.c)
-
-
-OPTION(BUILD_INI_SHARED "Build the port_ini libraries shared." OFF)
 OPTION(BUILD_REC_SHARED "Build the Reconstructor libraries shared." OFF)
-OPTION(BUILD_API_SHARED "Build the Reconstructor API libraries shared." OFF)
-
-IF(BUILD_INI_SHARED)
-  SET(INI_LIBRARY_TYPE SHARED)
-ELSE(BUILD_INI_SHARED)
-  SET(INI_LIBRARY_TYPE STATIC)
-ENDIF(BUILD_INI_SHARED)
-
 IF(BUILD_REC_SHARED)
   SET(REC_LIBRARY_TYPE SHARED)
 ELSE(BUILD_REC_SHARED)
   SET(REC_LIBRARY_TYPE STATIC)
 ENDIF(BUILD_REC_SHARED)
-
-IF(BUILD_API_SHARED)
-  SET(API_LIBRARY_TYPE SHARED)
-ELSE(BUILD_API_SHARED)
-  SET(API_LIBRARY_TYPE STATIC)
-ENDIF(BUILD_API_SHARED)
 
 
 SET(RECONSTRUCTION_SRCS
@@ -77,13 +56,17 @@ SET(RECONSTRUCTION_SRCS
     FltFile.cpp
 )
 
-
 IF(WIN32)
-    ADD_DEFINITIONS(-DWIN32 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
-ELSE(WIN32)  
-    ADD_LIBRARY(port_ini ${INI_LIBRARY_TYPE} port_ini.c)  
+  ADD_DEFINITIONS(-DWIN32 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
+ELSE(WIN32)
+  OPTION(BUILD_INI_SHARED "Build the port_ini libraries shared." OFF)
+  IF(BUILD_INI_SHARED)
+    SET(INI_LIBRARY_TYPE SHARED)
+  ELSE(BUILD_INI_SHARED)
+    SET(INI_LIBRARY_TYPE STATIC)
+  ENDIF(BUILD_INI_SHARED)
+  ADD_LIBRARY(port_ini INI_LIBRARY_TYPE port_ini.c)
 ENDIF(WIN32)
-
 
 
 # generate STATIC library
@@ -93,41 +76,10 @@ IF(UNIX)
     TARGET_LINK_LIBRARIES(reconstructor m port_ini)
 ENDIF(UNIX)
 
-#ADD_LIBRARY(reconstructor_api ${API_LIBRARY_TYPE} reconstructor_api.cpp)
-#TARGET_LINK_LIBRARIES(reconstructor_api reconstructor)
-
-ADD_EXECUTABLE(test_dot test_dot.cpp)
-TARGET_LINK_LIBRARIES(test_dot reconstructor)
-
-ADD_EXECUTABLE(test_mow test_mow.cpp)
-TARGET_LINK_LIBRARIES(test_mow reconstructor)
-
-#ADD_EXECUTABLE(test_interp test_interp.cpp)
-#TARGET_LINK_LIBRARIES(test_interp reconstructor)
-
-ADD_EXECUTABLE(test_qbi test_qbi.cpp )
-TARGET_LINK_LIBRARIES(test_qbi reconstructor)
-
 ADD_EXECUTABLE(reconstruction reconstruction.cpp )
 TARGET_LINK_LIBRARIES(reconstruction reconstructor)
 
-#ADD_EXECUTABLE(test_interpolation test_interpolation.cpp)
-#TARGET_LINK_LIBRARIES(test_interpolation port_ini vnl_algo vnl vcl)
-
-#ADD_EXECUTABLE(computeS0 computeS0.cpp)
-#TARGET_LINK_LIBRARIES(computeS0 vnl_algo vnl vcl)
-
-#ADD_EXECUTABLE(test_api test_api.c)
-#TARGET_LINK_LIBRARIES(test_api reconstructor_api)
-
-#ADD_EXECUTABLE(testNNLS testNNLS.cpp nnls.cc utilities.cpp)
-#TARGET_LINK_LIBRARIES(testNNLS vnl_algo vnl vcl)
-
-#IF(UNIX)
-#  TARGET_LINK_LIBRARIES(flt2itk4d m pthread g2c )
-#ENDIF(UNIX)
-
-INSTALL_TARGETS(/bin port_ini test_qbi test_dot test_mow)
+INSTALL_TARGETS(/bin reconstruction)
 
 #make install
 SET(CMAKE_INSTALL_PREFIX ${DW-MRI_SOURCE_DIR})

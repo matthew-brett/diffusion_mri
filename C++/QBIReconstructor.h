@@ -16,18 +16,18 @@ Version:   $Revision: 1.7 $
 
 class QBIReconstructor: public Reconstructor
 {
-	
-public:	
-	void DoReconstruction();
+    
+public: 
+    void DoReconstruction();
 
 private:
-	vnl_matrix < float> SPH_basis_S, inv_SPH_basis_S;
-	
-	void ComputeP(vnl_vector <float> &S, vnl_vector <float> &P);
-	void AssembleSPHBasisFromGradients();	
+    vnl_matrix < float> SPH_basis_S, inv_SPH_basis_S;
+    
+    void ComputeP(vnl_vector <float> &S, vnl_vector <float> &P);
+    void AssembleSPHBasisFromGradients();   
 //private:
-	void ComputeODF(unsigned i, vnl_vector <float> &S);
-	void ComputeODF();
+    void ComputeODF(unsigned i, vnl_vector <float> &S);
+    void ComputeODF();
 
 };
 

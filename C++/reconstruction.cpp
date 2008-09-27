@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
         reconstructor->SetConfigFile(argv[1]);
         reconstructor->DoReconstruction();
     }
-    else if (!strcmp(argv[3], "qbi"))
+    else if (!strcmp(argv[2], "qbi"))
     {
         QBIReconstructorPtr reconstructor(new QBIReconstructor);
         reconstructor->SetConfigFile(argv[1]);
