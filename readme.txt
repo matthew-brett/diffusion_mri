@@ -16,7 +16,7 @@ http://code.google.com/p/diffusion-mri
         so that typing 'python' in the system command line starts the Python interpreter.
     (2) NumPy (version >=1.0) and SciPy (version >=0.6.0)
         In addition to the standard python installations, both NumPy and Scipy have to be installed so 
-        that neither typing ¡¯import numpy¡¯ nor 'import scipy' in the python interpreter raise an error. 
+        that neither typing 'import numpy' nor 'import scipy' in the python interpreter raise an error. 
         For how to obtain and install NumPy/SciPy, please see http://www.scipy.org/
 
 
