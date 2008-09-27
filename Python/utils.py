@@ -61,7 +61,7 @@ def read_flt_file(filename):
     +-------------------------------------------------------------------+
     | dim (int) | size (int[dim]) | data_type (int) | data_length (int) |
     +-------------------------------------------------------------------+
-    followed the binary data section.
+    followed by the binary data section.
 
     Notes:
     (1) The number of dimensions is stored in the first 4 bytes as integer type.
