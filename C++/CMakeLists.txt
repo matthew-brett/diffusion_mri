@@ -65,23 +65,23 @@ ENDIF(BUILD_API_SHARED)
 
 
 SET(RECONSTRUCTION_SRCS
-				 Reconstructor.cpp
-         QBIReconstructor.cpp
-         DOTReconstructor.cpp
-         MoWReconstructor.cpp
-         utilities.cpp
-         spherical_harmonics.cpp
-         special_functions.cpp
-         nnls.cc
-         myendian.c
-         FltFile.cpp
+    Reconstructor.cpp
+    QBIReconstructor.cpp
+    DOTReconstructor.cpp
+    MoWReconstructor.cpp
+    utilities.cpp
+    spherical_harmonics.cpp
+    special_functions.cpp
+    nnls.cc
+    myendian.c
+    FltFile.cpp
 )
 
 
 IF(WIN32)
-  ADD_DEFINITIONS(-DWIN32 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
+    ADD_DEFINITIONS(-DWIN32 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
 ELSE(WIN32)  
-	ADD_LIBRARY(port_ini ${INI_LIBRARY_TYPE} port_ini.c)  
+    ADD_LIBRARY(port_ini ${INI_LIBRARY_TYPE} port_ini.c)  
 ENDIF(WIN32)
 
 
@@ -90,7 +90,7 @@ ENDIF(WIN32)
 ADD_LIBRARY(reconstructor ${REC_LIBRARY_TYPE} ${RECONSTRUCTION_SRCS})
 TARGET_LINK_LIBRARIES(reconstructor vnl_algo vnl vcl)
 IF(UNIX)
-  TARGET_LINK_LIBRARIES(reconstructor m port_ini)
+    TARGET_LINK_LIBRARIES(reconstructor m port_ini)
 ENDIF(UNIX)
 
 #ADD_LIBRARY(reconstructor_api ${API_LIBRARY_TYPE} reconstructor_api.cpp)
@@ -107,6 +107,9 @@ TARGET_LINK_LIBRARIES(test_mow reconstructor)
 
 ADD_EXECUTABLE(test_qbi test_qbi.cpp )
 TARGET_LINK_LIBRARIES(test_qbi reconstructor)
+
+ADD_EXECUTABLE(reconstruction reconstruction.cpp )
+TARGET_LINK_LIBRARIES(reconstruction reconstructor)
 
 #ADD_EXECUTABLE(test_interpolation test_interpolation.cpp)
 #TARGET_LINK_LIBRARIES(test_interpolation port_ini vnl_algo vnl vcl)
