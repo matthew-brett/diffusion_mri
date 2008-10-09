@@ -1,0 +1,7 @@
+ObjectType = Image
+NDims = 3
+BinaryData = True
+BinaryDataByteOrderMSB = False
+DimSize = 1 1 81
+ElementType = MET_FLOAT
+ElementDataFile = 3fib.raw
