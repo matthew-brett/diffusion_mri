@@ -6,16 +6,14 @@
 #Module:    $RCSfile: reconstruction.py,v $
 #Language:  Python
 #Author:    $Author: bjian $
-#Date:      $Date: 2008/09/19 22:10:59 $
-#Version:   $Revision: 1.17 $
+#Date:      $Date: 2008/10/09 06:19:47 $
+#Version:   $Revision: 1.4 $
 #======================================================================
 
 """
 Usage:
-    In ipython, run the following:
-     run reconstruction.py example.ini mow (or dot or qbi)
-     [dsize, data] = read_flt_file('output.flt')
-     x = scipy.optimize.fmin_l_bfgs_b(real_spherical_harmonics, [1,1], None, args=(data[:,0],8,2))
+    In ipython, go to the data directory and run the following:
+     run ../Python/reconstruction.py example.ini mow (or dot or qbi)
 """
 
 import sys
@@ -24,7 +22,7 @@ import numpy
 import ConfigParser
 
 from utils import *
-
+from mhd_utils import *
 
 class Reconstructor:
     """ The base class for reconstruction. """
@@ -35,9 +33,11 @@ class Reconstructor:
         if parser.read(config):
             self.InputFile = parser.get('Input','diffusion_image')
             print "Reading signals from file", self.InputFile, "..."
-            self.dsize, self.Signal = read_flt_file(self.InputFile)
+            #self.dsize, self.Signal = read_flt_file(self.InputFile)
+            self.Signal, meta_dict = load_raw_data_with_mhd(self.InputFile)
+            self.dsize = [int(i) for i in meta_dict['DimSize'].split()]
             print "Obtained signals of size", list(self.dsize)
-
+            #print self.Signal
             try:
                 self.BMatrixFile = parser.get('Input','b_matrices')
                 print "Reading B-matrices from file", self.BMatrixFile, "..."
@@ -53,7 +53,8 @@ class Reconstructor:
             try:
                 self.S0ImageFile = parser.get('Input','baseline_image')
                 print "Reading S0 image from", self.S0ImageFile
-                self.S0 = read_flt_file(self.S0ImageFile)[1]
+                #self.S0 = read_flt_file(self.S0ImageFile)[1]
+                self.S0 = load_raw_data_with_mhd(self.S0ImageFile)[0]
             except:
                 self.S0 = float(parser.get('Input','baseline_value'))
                 print "Use constant S0 value:", self.S0
@@ -74,14 +75,9 @@ class Reconstructor:
         dsize = self.dsize
         dsize[-1] = self.coeff.shape[0]
         degree =  int((math.sqrt(8*dsize[-1]+1) - 3)/2)
-        write_flt_file(OutputPath+'.flt', self.coeff, dsize)
-        print "The real-valued spherical harmonics coefficients written to %s.flt"%OutputPath
-        [coeff_real, coeff_imag] = convert_coeff(self.coeff,degree)
-        dsize[-1] = coeff_real.shape[0]
-        write_flt_file(OutputPath+'_real.flt', coeff_real, dsize)
-        write_flt_file(OutputPath+'_imag.flt', coeff_imag, dsize)
-        print "Complex-valued coefficients written to %s_(real|imag).flt"%OutputPath
-        print "To view the reconstruction result, please launch vis_spharm.sav and open %s_real.flt"%OutputPath
+        write_mhd_file(OutputPath+'.mhd', self.coeff, dsize)
+        print "The real-valued spherical harmonics coefficients written to %s.mhd"%OutputPath
+
 
 
 class MOWReconstructor(Reconstructor):

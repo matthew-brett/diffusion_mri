@@ -5,8 +5,8 @@ http://www.sjbrown.co.uk/?article=sharmonics
 %% Module:    $RCSfile: spherical_harmonics.py,v $
 %% Language:  Python
 %% Author:    $Author: bjian $
-%% Date:      $Date: 2008/09/19 21:58:59 $
-%% Version:   $Revision: 1.2 $
+%% Date:      $Date: 2008/09/28 00:40:07 $
+%% Version:   $Revision: 1.1 $
 %%=============================================================
 """
 

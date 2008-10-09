@@ -6,8 +6,8 @@
 #Module:    $RCSfile: test_condition_number.py,v $
 #Language:  Python
 #Author:    $Author: bjian $
-#Date:      $Date: 2008/09/18 07:00:23 $
-#Version:   $Revision: 1.2 $
+#Date:      $Date: 2008/09/28 00:40:07 $
+#Version:   $Revision: 1.1 $
 #======================================================================
 
 import os
