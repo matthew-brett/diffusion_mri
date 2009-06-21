@@ -6,7 +6,7 @@
 #Module:    $RCSfile: utils.py,v $
 #Language:  Python
 #Author:    $Author: bjian $
-#Date:      $Date: 2008/10/09 06:19:47 $
+#Date:      $Date: 2009/06/21 18:11:18 $
 #Version:   $Revision: 1.5 $
 #======================================================================
 
@@ -14,6 +14,7 @@ import math
 import numpy
 import array
 import scipy.special
+import scipy.optimize
 import spherical_harmonics
 
 class Error(Exception):
@@ -202,7 +203,7 @@ function [az,elev,r] = cart2sph(x,y,z)
 %   See also CART2POL, SPH2CART, POL2CART.
 
 %   Copyright 1984-2004 The MathWorks, Inc.
-%   $Revision: 1.5 $  $Date: 2008/10/09 06:19:47 $
+%   $Revision: 1.5 $  $Date: 2009/06/21 18:11:18 $
 
 """
 
@@ -212,6 +213,16 @@ def cart2sph(x,y,z):
     az = math.atan2(y,x)
     return az, elev, r
 
+
+def sph2cart(angle):
+    # angle  - [theta,phi] colatitude and longitude
+    cos = math.cos
+    sin = math.sin
+    theta,phi = angle
+    z = cos(theta)
+    x = sin(theta)*cos(phi)
+    y = sin(theta)*sin(phi)
+    return x,y,z
 
 def construct_SH_basis(pts, degree):
     sph_coord = numpy.array([cart2sph(x,y,z) for x,y,z in pts])
@@ -304,3 +315,58 @@ def computeM(l, gradients, tessellation):
 
 
 
+
+
+
+def fiber_orientation(data, init_pos):
+    f = spherical_harmonics.real_spherical_harmonics
+    #init_angle = (((90,30)), ((80,25),(80,105)));
+    n_try = len(init_pos)
+    #[dsize, data] = ReadFLTFile([coeff_fname, '.flt']);
+    (ncoeff, ntimes) = data.shape
+    angles = numpy.zeros((ntimes, n_try*2))
+    l = (math.sqrt((8*ncoeff+1))-3)/2
+    for k in range(ntimes):
+        for kk in range(n_try):
+            x = scipy.optimize.fmin_l_bfgs_b(f, init_pos[kk], None, args=(data[:,k],l,2))
+            angles[k][kk*2] = x[0][0]
+            angles[k][kk*2+1] = x[0][1]
+    return angles
+
+
+def compare_ground_truth(angles, gt):
+    pi = math.pi
+    n = angles.shape[0]
+    vs = numpy.array([sph2cart(angle) for angle in angles])
+    inn = [numpy.dot(v,g) for v,g in zip(vs,gt)]
+    inn = [min(math.fabs(x),1) for x in inn]
+    err = [math.acos(x)*180/pi for x in inn]
+    return err
+
+
+def deg2rad(x):
+    try:
+        return [deg2rad(i) for i in x]
+    except:
+        return x*math.pi/180.0
+
+
+def deviation_angle(angle, gt):
+    v = numpy.array(sph2cart(angle))
+    g = numpy.array(sph2cart(gt))
+    x = min(math.fabs(numpy.dot(v,g)),1)
+    return math.acos(x)*180/math.pi
+
+def deviation_angles(angles, gts):
+    return [deviation_angle(angles[2*i:2*i+2], gt) for i,gt in enumerate(gts)]
+
+
+def add_rician_noise(signal, std):
+    k,n = signal.shape
+    noise = numpy.random.randn(2,k,n)*std
+    s_real = signal + noise[0]
+    s_imag = noise[1]
+    #s_complex = numpy.array(s_real+numpy.sqrt(complex(-1))*s_imag,dtype=complex)
+    #s_noise = numpy.abs(s_complex)
+    s_noise = numpy.sqrt(s_real**2 + s_imag**2)
+    return s_noise

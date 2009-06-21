@@ -6,7 +6,7 @@
 #Module:    $RCSfile: test_condition_number.py,v $
 #Language:  Python
 #Author:    $Author: bjian $
-#Date:      $Date: 2008/09/28 00:40:07 $
+#Date:      $Date: 2008/10/27 05:55:56 $
 #Version:   $Revision: 1.1 $
 #======================================================================
 

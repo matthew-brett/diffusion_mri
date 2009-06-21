@@ -6,8 +6,8 @@
 #Module:    $RCSfile: mhd_utils.py,v $
 #Language:  Python
 #Author:    $Author: bjian $
-#Date:      $Date: 2008/10/09 06:19:47 $
-#Version:   $Revision: 1.2 $
+#Date:      $Date: 2008/10/27 05:55:55 $
+#Version:   $Revision: 1.1 $
 #======================================================================
 
 import os
