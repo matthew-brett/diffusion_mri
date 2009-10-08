@@ -31,7 +31,12 @@ class Reconstructor:
     """ The base class for reconstruction. """
 
     def __init__(self):
-        print " ***** Initializing the base reconstructor ... *****"
+        self.config = ConfigParser.ConfigParser()
+
+    def set_config_file(self, config_file):
+        self.config_file = config_file
+        parser = self.config
+        assert(parser.read(config_file))
 
     def load_signal_from_file(self, input_file):
         self.InputFile = input_file
@@ -63,8 +68,8 @@ class Reconstructor:
         else:
             self.S0 = load_raw_data_with_mhd(self.S0ImageFile)[0]
 
-    def init_from_configuration(self, parser):
-        self.config = parser
+    def init_from_configuration(self):
+        parser = self.config
         input_file = parser.get('Input','diffusion_image')
         self.load_signal_from_file(input_file)
         #print self.Signal
@@ -129,8 +134,13 @@ class MOWReconstructor(Reconstructor):
         Reconstructor.__init__(self)
         print " ***** Initializing the MOW reconstructor ... ***** "
 
-    def init_from_configuration(self, parser):
-        Reconstructor.init_from_configuration(self, parser)
+    def set_config_file(self, config_file):
+        Reconstructor.set_config_file(self, config_file)
+        self.init_from_configuration()
+
+    def init_from_configuration(self):
+        Reconstructor.init_from_configuration(self)
+        parser = self.config
         self.load_eigenvectors(parser.get('MOW','eigenvectors'))
         lambda1 = float(parser.get('MOW','eigenvalue1'))
         lambda2 = float(parser.get('MOW','eigenvalue2'))
@@ -207,8 +217,14 @@ class QBIReconstructor(Reconstructor):
         Reconstructor.__init__(self)
         print " ***** Initializing the QBI reconstructor ... ***** "
 
-    def init_from_configuration(self, parser):
-        Reconstructor.init_from_configuration(self, parser)
+
+    def set_config_file(self, config_file):
+        Reconstructor.set_config_file(self, config_file)
+        self.init_from_configuration()
+
+    def init_from_configuration(self):
+        Reconstructor.init_from_configuration(self)
+        parser = self.config
         self.degree = int(parser.get('QBI','degree'))
         try:
         #if True:
@@ -271,8 +287,13 @@ class DOTReconstructor(Reconstructor):
         Reconstructor.__init__(self)
         print " ***** Initializing the DOT reconstructor ... ***** "
 
-    def init_from_configuration(self, parser):
-        Reconstructor.init_from_configuration(self, parser)
+    def set_config_file(self, config_file):
+        Reconstructor.set_config_file(self, config_file)
+        self.init_from_configuration()
+
+    def init_from_configuration(self):
+        Reconstructor.init_from_configuration(self)
+        parser = self.config
         self.degree = int(parser.get('DOT','degree'))
         self.load_tessellation(parser.get('Input','tessellation'))
         self.load_spharm_basis(parser.get('Input','sh_basis_matrix'))
@@ -282,6 +303,7 @@ class DOTReconstructor(Reconstructor):
         self.M = [computeM(l, self.g, self.tessellation) for l in range(0,self.degree+1,2)] #TxK
 
     def reconstruct(self):
+        self.comp_M()
         P = numpy.zeros([self.tessellation.shape[0], self.s.shape[1]])
         for l in range(0, self.degree+1,2):
             Il = [[comp_Il(l,S,self.b,self.r,self.t) for S in image] for image in self.s]
@@ -300,13 +322,10 @@ reconstructor['DOT'] = DOTReconstructor
 reconstructor['QBI'] = QBIReconstructor
 
 def main(config_file, method):
-    parser = ConfigParser.ConfigParser()
-    if parser.read(config_file):
-        recon = reconstructor[method.upper()](parser)
-        recon.reconstruct()
-        recon.write_output()
-    else:
-        raise InputError('init','No configuration file')
+    recon = reconstructor[method.upper()]()
+    recon.set_config_file(config_file)
+    recon.reconstruct()
+    recon.write_output()
 
 
 if __name__ == '__main__':
